@@ -77,8 +77,8 @@ export default {
         terracotta: "hsl(var(--terracotta))",
       },
       fontFamily: {
-        display: ["Playfair Display", "Georgia", "serif"],
-        body: ["Lato", "system-ui", "sans-serif"],
+        display: ["Cormorant Garamond", "Georgia", "serif"],
+        body: ["Outfit", "system-ui", "sans-serif"],
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -113,9 +113,9 @@ export default {
           "0%, 100%": { transform: "translateY(0)" },
           "50%": { transform: "translateY(-10px)" },
         },
-        "parallax-slow": {
-          "0%": { transform: "translateY(0)" },
-          "100%": { transform: "translateY(-50px)" },
+        "pulse-glow": {
+          "0%, 100%": { boxShadow: "0 0 20px hsl(var(--gold) / 0.3)" },
+          "50%": { boxShadow: "0 0 40px hsl(var(--gold) / 0.5)" },
         },
       },
       animation: {
@@ -123,21 +123,7 @@ export default {
         "accordion-up": "accordion-up 0.2s ease-out",
         shimmer: "shimmer 2s linear infinite",
         float: "float 6s ease-in-out infinite",
-        "parallax-slow": "parallax-slow 1s ease-out",
-      },
-      typography: {
-        DEFAULT: {
-          css: {
-            maxWidth: "65ch",
-            color: "hsl(var(--foreground))",
-            a: {
-              color: "hsl(var(--gold))",
-              "&:hover": {
-                color: "hsl(var(--gold-dark))",
-              },
-            },
-          },
-        },
+        "pulse-glow": "pulse-glow 2s ease-in-out infinite",
       },
     },
   },
