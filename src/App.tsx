@@ -22,6 +22,11 @@ import AdminEventSpaces from "./pages/admin/EventSpaces";
 import AdminEventBookings from "./pages/admin/EventBookings";
 import AdminMenu from "./pages/admin/Menu";
 import AdminInquiries from "./pages/admin/Inquiries";
+import AdminExperiences from "./pages/admin/Experiences";
+import AdminGallery from "./pages/admin/Gallery";
+import AdminSpecialOffers from "./pages/admin/SpecialOffers";
+import AdminTestimonials from "./pages/admin/Testimonials";
+import AdminSettings from "./pages/admin/Settings";
 
 const queryClient = new QueryClient();
 
@@ -48,7 +53,12 @@ const App = () => (
               <Route path="events" element={<AdminEventSpaces />} />
               <Route path="event-bookings" element={<AdminEventBookings />} />
               <Route path="menu" element={<AdminMenu />} />
+              <Route path="experiences" element={<AdminExperiences />} />
+              <Route path="gallery" element={<AdminGallery />} />
+              <Route path="offers" element={<AdminSpecialOffers />} />
+              <Route path="testimonials" element={<AdminTestimonials />} />
               <Route path="inquiries" element={<AdminInquiries />} />
+              <Route path="settings" element={<AdminSettings />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
