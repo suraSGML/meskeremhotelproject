@@ -1,10 +1,33 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, Clock, Flame, Star, Coffee, Wine, UtensilsCrossed } from "lucide-react";
+import { ArrowRight, Clock, Flame, Star, Coffee, Wine, UtensilsCrossed, Leaf, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PageHeader from "@/components/PageHeader";
+import { supabase } from "@/integrations/supabase/client";
 import diningImage from "@/assets/dining-restaurant.jpg";
+
+interface MenuCategory {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  display_order: number;
+}
+
+interface MenuItem {
+  id: string;
+  name: string;
+  description: string | null;
+  price: number;
+  category_id: string | null;
+  is_vegetarian: boolean;
+  is_vegan: boolean;
+  is_spicy: boolean;
+  image_url: string | null;
+}
 
 const restaurants = [
   {
@@ -36,27 +59,50 @@ const restaurants = [
   },
 ];
 
-const menuHighlights = [
-  {
-    category: "Ethiopian Signatures",
-    items: [
-      { name: "Doro Wot", description: "Slow-cooked chicken in berbere spice sauce with boiled egg", price: "450 ETB", isSignature: true },
-      { name: "Kitfo Special", description: "Premium minced beef with mitmita, ayib, and gomen", price: "380 ETB", isSignature: true },
-      { name: "Tibs Firfir", description: "Sautéed beef with injera, onions, and peppers", price: "320 ETB" },
-      { name: "Beyaynetu", description: "Colorful vegetarian platter with six traditional dishes", price: "280 ETB" },
-    ],
-  },
-  {
-    category: "International Cuisine",
-    items: [
-      { name: "Grilled Lamb Chops", description: "Ethiopian honey-glazed lamb with roasted vegetables", price: "520 ETB" },
-      { name: "Pan-Seared Tilapia", description: "Lake Tana tilapia with herb butter and rice pilaf", price: "340 ETB" },
-      { name: "Beef Tenderloin", description: "Premium cut with red wine reduction and mashed potatoes", price: "580 ETB" },
-    ],
-  },
-];
-
 const Dining = () => {
+  const [categories, setCategories] = useState<MenuCategory[]>([]);
+  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchMenuData = async () => {
+      try {
+        const [categoriesResult, itemsResult] = await Promise.all([
+          supabase
+            .from('menu_categories')
+            .select('*')
+            .eq('is_active', true)
+            .order('display_order', { ascending: true }),
+          supabase
+            .from('menu_items')
+            .select('*')
+            .eq('is_available', true)
+            .order('display_order', { ascending: true }),
+        ]);
+
+        if (categoriesResult.error) throw categoriesResult.error;
+        if (itemsResult.error) throw itemsResult.error;
+
+        setCategories(categoriesResult.data || []);
+        setMenuItems(itemsResult.data || []);
+      } catch (error) {
+        console.error('Error fetching menu data:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchMenuData();
+  }, []);
+
+  const getItemsByCategory = (categoryId: string) => {
+    return menuItems.filter(item => item.category_id === categoryId);
+  };
+
+  const formatPrice = (price: number) => {
+    return `${price.toLocaleString()} ETB`;
+  };
+
   return (
     <main className="min-h-screen">
       <Navbar />
@@ -139,33 +185,65 @@ const Dining = () => {
                 </h2>
               </div>
 
-              {menuHighlights.map((category) => (
-                <div key={category.category} className="space-y-4">
-                  <h3 className="font-display text-xl text-gold">{category.category}</h3>
-                  <div className="space-y-3">
-                    {category.items.map((item, index) => (
-                      <div
-                        key={index}
-                        className="flex items-start justify-between p-4 bg-primary-foreground/5 rounded-lg hover:bg-primary-foreground/10 transition-colors"
-                      >
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className="font-display text-lg">{item.name}</span>
-                            {item.isSignature && (
-                              <span className="flex items-center gap-1 text-xs bg-gold text-espresso px-2 py-0.5 rounded-full">
-                                <Star className="w-3 h-3" />
-                                Signature
-                              </span>
-                            )}
-                          </div>
-                          <p className="text-sm text-primary-foreground/60">{item.description}</p>
-                        </div>
-                        <span className="text-gold font-medium ml-4 whitespace-nowrap">{item.price}</span>
+              {isLoading ? (
+                <div className="space-y-8">
+                  {[1, 2].map((i) => (
+                    <div key={i} className="space-y-4">
+                      <Skeleton className="h-6 w-1/3 bg-primary-foreground/10" />
+                      <div className="space-y-3">
+                        {[1, 2, 3].map((j) => (
+                          <Skeleton key={j} className="h-20 w-full bg-primary-foreground/10" />
+                        ))}
                       </div>
-                    ))}
-                  </div>
+                    </div>
+                  ))}
                 </div>
-              ))}
+              ) : categories.length === 0 ? (
+                <p className="text-primary-foreground/60">Menu coming soon...</p>
+              ) : (
+                categories.slice(0, 2).map((category) => {
+                  const items = getItemsByCategory(category.id);
+                  if (items.length === 0) return null;
+                  
+                  return (
+                    <div key={category.id} className="space-y-4">
+                      <h3 className="font-display text-xl text-gold">{category.name}</h3>
+                      <div className="space-y-3">
+                        {items.slice(0, 4).map((item) => (
+                          <div
+                            key={item.id}
+                            className="flex items-start justify-between p-4 bg-primary-foreground/5 rounded-lg hover:bg-primary-foreground/10 transition-colors"
+                          >
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-1 flex-wrap">
+                                <span className="font-display text-lg">{item.name}</span>
+                                {item.is_spicy && (
+                                  <span className="flex items-center gap-1 text-xs bg-red-500 text-white px-2 py-0.5 rounded-full">
+                                    <Zap className="w-3 h-3" />
+                                    Spicy
+                                  </span>
+                                )}
+                                {item.is_vegetarian && (
+                                  <span className="flex items-center gap-1 text-xs bg-green-600 text-white px-2 py-0.5 rounded-full">
+                                    <Leaf className="w-3 h-3" />
+                                    Veg
+                                  </span>
+                                )}
+                              </div>
+                              {item.description && (
+                                <p className="text-sm text-primary-foreground/60">{item.description}</p>
+                              )}
+                            </div>
+                            <span className="text-gold font-medium ml-4 whitespace-nowrap">
+                              {formatPrice(item.price)}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })
+              )}
 
               <div className="flex gap-4 pt-4">
                 <Link to="/contact">
