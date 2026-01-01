@@ -1,13 +1,22 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, Phone } from "lucide-react";
+import { Menu, X, Phone, User, LogOut, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
   const isHome = location.pathname === "/";
+  const { user, isAdmin, signOut, isLoading } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -78,11 +87,43 @@ const Navbar = () => {
             <Phone className="w-4 h-4" />
             <span className="font-medium">+251 912 345 678</span>
           </a>
-          <Link to="/contact">
-            <Button variant={showTransparent ? "hero" : "gold"} size="default">
-              Reserve Now
-            </Button>
-          </Link>
+          
+          {!isLoading && user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant={showTransparent ? "hero" : "outline"} size="default" className="gap-2">
+                  <User className="w-4 h-4" />
+                  {user.email?.split('@')[0]}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                {isAdmin && (
+                  <>
+                    <DropdownMenuItem asChild>
+                      <Link to="/admin" className="flex items-center gap-2 cursor-pointer">
+                        <Settings className="w-4 h-4" />
+                        Admin Dashboard
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                  </>
+                )}
+                <DropdownMenuItem 
+                  onClick={() => signOut()} 
+                  className="flex items-center gap-2 cursor-pointer text-destructive"
+                >
+                  <LogOut className="w-4 h-4" />
+                  Sign Out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Link to="/auth">
+              <Button variant={showTransparent ? "hero" : "gold"} size="default">
+                Sign In
+              </Button>
+            </Link>
+          )}
         </div>
 
         <button
@@ -118,9 +159,34 @@ const Navbar = () => {
               <Phone className="w-5 h-5" />
               <span>+251 912 345 678</span>
             </a>
-            <Link to="/contact" onClick={() => setIsMobileMenuOpen(false)}>
-              <Button variant="gold" size="lg" className="w-full">Reserve Now</Button>
-            </Link>
+            {!isLoading && user ? (
+              <>
+                {isAdmin && (
+                  <Link to="/admin" onClick={() => setIsMobileMenuOpen(false)}>
+                    <Button variant="outline" size="lg" className="w-full gap-2">
+                      <Settings className="w-4 h-4" />
+                      Admin Dashboard
+                    </Button>
+                  </Link>
+                )}
+                <Button 
+                  variant="destructive" 
+                  size="lg" 
+                  className="w-full gap-2"
+                  onClick={() => {
+                    signOut();
+                    setIsMobileMenuOpen(false);
+                  }}
+                >
+                  <LogOut className="w-4 h-4" />
+                  Sign Out
+                </Button>
+              </>
+            ) : (
+              <Link to="/auth" onClick={() => setIsMobileMenuOpen(false)}>
+                <Button variant="gold" size="lg" className="w-full">Sign In</Button>
+              </Link>
+            )}
           </div>
         </div>
       </div>
