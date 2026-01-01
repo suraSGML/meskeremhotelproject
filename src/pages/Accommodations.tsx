@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, Wifi, Coffee, Bath, Mountain, Tv, Wind, Users, Check, Star } from "lucide-react";
+import { RoomBookingDialog } from "@/components/RoomBookingDialog";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import Navbar from "@/components/Navbar";
@@ -37,6 +38,13 @@ const amenityIcons = [
 const Accommodations = () => {
   const [rooms, setRooms] = useState<Room[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
+  const [bookingOpen, setBookingOpen] = useState(false);
+
+  const handleBookRoom = (room: Room) => {
+    setSelectedRoom(room);
+    setBookingOpen(true);
+  };
 
   useEffect(() => {
     const fetchRooms = async () => {
@@ -173,12 +181,15 @@ const Accommodations = () => {
                           <span className="text-lg text-muted-foreground font-body"> /night</span>
                         </p>
                       </div>
-                      <Link to="/contact">
-                        <Button variant="gold" size="lg" className="group">
-                          Reserve Now
-                          <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                        </Button>
-                      </Link>
+                      <Button 
+                        variant="gold" 
+                        size="lg" 
+                        className="group"
+                        onClick={() => handleBookRoom(room)}
+                      >
+                        Reserve Now
+                        <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                      </Button>
                     </div>
                   </div>
                 </div>
@@ -236,6 +247,12 @@ const Accommodations = () => {
       </section>
 
       <Footer />
+
+      <RoomBookingDialog
+        room={selectedRoom}
+        open={bookingOpen}
+        onOpenChange={setBookingOpen}
+      />
     </main>
   );
 };

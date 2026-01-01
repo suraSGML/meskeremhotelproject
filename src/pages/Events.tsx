@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PageHeader from "@/components/PageHeader";
+import { EventBookingDialog } from "@/components/EventBookingDialog";
 import eventBallroom from "@/assets/event-ballroom.jpg";
 import eventGarden from "@/assets/event-garden.jpg";
 import eventConference from "@/assets/event-conference.jpg";
@@ -66,6 +67,7 @@ const services = [
 
 const Events = () => {
   const [selectedVenue, setSelectedVenue] = useState(venues[0]);
+  const [bookingOpen, setBookingOpen] = useState(false);
 
   return (
     <main className="min-h-screen">
@@ -175,12 +177,15 @@ const Events = () => {
 
               {/* CTA */}
               <div className="flex flex-wrap gap-4">
-                <Link to="/contact">
-                  <Button variant="gold" size="lg" className="group">
-                    Request Quote
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                  </Button>
-                </Link>
+                <Button 
+                  variant="gold" 
+                  size="lg" 
+                  className="group"
+                  onClick={() => setBookingOpen(true)}
+                >
+                  Request Quote
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </Button>
                 <Link to="/contact">
                   <Button variant="outline" size="lg">
                     Schedule Tour
@@ -234,16 +239,21 @@ const Events = () => {
           <p className="text-primary-foreground/80 text-lg max-w-2xl mx-auto mb-10">
             Our events team is ready to bring your vision to life. Contact us today for a personalized consultation.
           </p>
-          <Link to="/contact">
-            <Button variant="hero" size="xl" className="group">
-              Start Planning
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </Button>
-          </Link>
+          <Button 
+            variant="hero" 
+            size="xl" 
+            className="group"
+            onClick={() => setBookingOpen(true)}
+          >
+            Start Planning
+            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+          </Button>
         </div>
       </section>
 
       <Footer />
+
+      <EventBookingDialog open={bookingOpen} onOpenChange={setBookingOpen} />
     </main>
   );
 };
