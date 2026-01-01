@@ -1,23 +1,26 @@
 import { useState } from "react";
-import { MapPin, Phone, Mail, Clock, Send, MessageCircle, Calendar, Users } from "lucide-react";
+import { MapPin, Phone, Mail, Clock, Send, MessageCircle, Calendar, Users, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PageHeader from "@/components/PageHeader";
 
 const inquiryTypes = [
-  { id: "general", label: "General Inquiry", icon: MessageCircle },
-  { id: "reservation", label: "Room Reservation", icon: Calendar },
-  { id: "event", label: "Event/Wedding", icon: Users },
-  { id: "dining", label: "Restaurant Booking", icon: Calendar },
+  { id: "general", label: "General Inquiry", icon: MessageCircle, description: "Questions about our hotel" },
+  { id: "reservation", label: "Room Booking", icon: Calendar, description: "Book or inquire about rooms" },
+  { id: "event", label: "Event/Wedding", icon: Users, description: "Plan your special occasion" },
+  { id: "dining", label: "Restaurant", icon: Calendar, description: "Table reservations & catering" },
 ];
 
 const Contact = () => {
   const { toast } = useToast();
   const [selectedType, setSelectedType] = useState("general");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -28,21 +31,64 @@ const Contact = () => {
     guestCount: "",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast({
-      title: "Message Sent!",
-      description: "Thank you for contacting us. We'll respond within 24 hours.",
-    });
-    setFormData({
-      name: "",
-      email: "",
-      phone: "",
-      subject: "",
-      message: "",
-      eventDate: "",
-      guestCount: "",
-    });
+    setIsSubmitting(true);
+
+    try {
+      // Build subject based on inquiry type
+      const inquiryLabel = inquiryTypes.find(t => t.id === selectedType)?.label || 'General';
+      const fullSubject = formData.subject 
+        ? `[${inquiryLabel}] ${formData.subject}`
+        : `[${inquiryLabel}] New inquiry`;
+
+      // Build message with additional details
+      let fullMessage = formData.message;
+      if (selectedType === "event" || selectedType === "reservation") {
+        if (formData.eventDate) {
+          fullMessage += `\n\nPreferred Date: ${formData.eventDate}`;
+        }
+        if (formData.guestCount) {
+          fullMessage += `\nExpected Guests: ${formData.guestCount}`;
+        }
+      }
+
+      const { error } = await supabase.from('contact_inquiries').insert({
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        phone: formData.phone.trim() || null,
+        subject: fullSubject,
+        message: fullMessage.trim(),
+        inquiry_type: selectedType,
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Message Sent!",
+        description: "Thank you for contacting us. We'll respond within 24 hours.",
+      });
+      
+      setFormData({
+        name: "",
+        email: "",
+        phone: "",
+        subject: "",
+        message: "",
+        eventDate: "",
+        guestCount: "",
+      });
+      setSelectedType("general");
+    } catch (error) {
+      console.error('Error submitting inquiry:', error);
+      toast({
+        title: "Failed to send",
+        description: "Please try again or contact us directly by phone.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -147,9 +193,9 @@ const Contact = () => {
 
                 {/* Inquiry Type Selector */}
                 <div className="mb-8">
-                  <label className="block text-sm font-medium text-foreground mb-4">
+                  <Label className="block text-sm font-medium text-foreground mb-3">
                     What can we help you with?
-                  </label>
+                  </Label>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                     {inquiryTypes.map((type) => (
                       <button
@@ -158,14 +204,15 @@ const Contact = () => {
                         onClick={() => setSelectedType(type.id)}
                         className={`p-4 rounded-lg border text-center transition-all ${
                           selectedType === type.id
-                            ? "border-gold bg-gold/10 text-foreground"
-                            : "border-border text-muted-foreground hover:border-gold/50"
+                            ? "border-gold bg-gold/10 text-foreground shadow-sm"
+                            : "border-border text-muted-foreground hover:border-gold/50 hover:bg-muted/50"
                         }`}
                       >
                         <type.icon className={`w-5 h-5 mx-auto mb-2 ${
                           selectedType === type.id ? "text-gold" : ""
                         }`} />
-                        <span className="text-xs font-medium">{type.label}</span>
+                        <span className="text-xs font-medium block">{type.label}</span>
+                        <span className="text-[10px] text-muted-foreground mt-1 block">{type.description}</span>
                       </button>
                     ))}
                   </div>
@@ -173,100 +220,123 @@ const Contact = () => {
 
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="grid md:grid-cols-2 gap-6">
-                    <div>
-                      <label className="block text-sm font-medium text-foreground mb-2">
-                        Full Name *
-                      </label>
+                    <div className="space-y-2">
+                      <Label htmlFor="name">Full Name <span className="text-destructive">*</span></Label>
                       <Input
+                        id="name"
                         type="text"
-                        placeholder="Your name"
+                        placeholder="Your full name"
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                         required
+                        disabled={isSubmitting}
+                        maxLength={100}
                       />
                     </div>
-                    <div>
-                      <label className="block text-sm font-medium text-foreground mb-2">
-                        Email Address *
-                      </label>
+                    <div className="space-y-2">
+                      <Label htmlFor="email">Email Address <span className="text-destructive">*</span></Label>
                       <Input
+                        id="email"
                         type="email"
-                        placeholder="your@email.com"
+                        placeholder="you@example.com"
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                         required
+                        disabled={isSubmitting}
+                        maxLength={255}
                       />
                     </div>
                   </div>
 
                   <div className="grid md:grid-cols-2 gap-6">
-                    <div>
-                      <label className="block text-sm font-medium text-foreground mb-2">
-                        Phone Number
-                      </label>
+                    <div className="space-y-2">
+                      <Label htmlFor="phone">Phone Number</Label>
                       <Input
+                        id="phone"
                         type="tel"
                         placeholder="+251 9XX XXX XXX"
                         value={formData.phone}
                         onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                        disabled={isSubmitting}
                       />
                     </div>
-                    <div>
-                      <label className="block text-sm font-medium text-foreground mb-2">
-                        Subject
-                      </label>
+                    <div className="space-y-2">
+                      <Label htmlFor="subject">Subject</Label>
                       <Input
+                        id="subject"
                         type="text"
-                        placeholder="How can we help?"
+                        placeholder="Brief topic of your inquiry"
                         value={formData.subject}
                         onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+                        disabled={isSubmitting}
+                        maxLength={200}
                       />
                     </div>
                   </div>
 
                   {/* Conditional fields for event/reservation */}
                   {(selectedType === "event" || selectedType === "reservation") && (
-                    <div className="grid md:grid-cols-2 gap-6 p-4 bg-muted rounded-lg">
-                      <div>
-                        <label className="block text-sm font-medium text-foreground mb-2">
-                          Preferred Date
-                        </label>
+                    <div className="grid md:grid-cols-2 gap-6 p-4 bg-muted/50 rounded-lg border border-border/50">
+                      <div className="space-y-2">
+                        <Label htmlFor="eventDate">Preferred Date</Label>
                         <Input
+                          id="eventDate"
                           type="date"
                           value={formData.eventDate}
                           onChange={(e) => setFormData({ ...formData, eventDate: e.target.value })}
+                          disabled={isSubmitting}
                         />
                       </div>
-                      <div>
-                        <label className="block text-sm font-medium text-foreground mb-2">
-                          Number of Guests
-                        </label>
+                      <div className="space-y-2">
+                        <Label htmlFor="guestCount">Number of Guests</Label>
                         <Input
+                          id="guestCount"
                           type="number"
-                          placeholder="Expected guests"
+                          min="1"
+                          placeholder="Expected number of guests"
                           value={formData.guestCount}
                           onChange={(e) => setFormData({ ...formData, guestCount: e.target.value })}
+                          disabled={isSubmitting}
                         />
                       </div>
                     </div>
                   )}
 
-                  <div>
-                    <label className="block text-sm font-medium text-foreground mb-2">
-                      Message *
-                    </label>
+                  <div className="space-y-2">
+                    <Label htmlFor="message">Message <span className="text-destructive">*</span></Label>
                     <Textarea
-                      placeholder="Tell us more about your inquiry..."
+                      id="message"
+                      placeholder="Please describe your inquiry in detail. Include any specific requirements, questions, or information that would help us assist you better..."
                       value={formData.message}
                       onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                       rows={5}
                       required
+                      disabled={isSubmitting}
+                      maxLength={2000}
                     />
+                    <p className="text-xs text-muted-foreground">
+                      {formData.message.length}/2000 characters
+                    </p>
                   </div>
 
-                  <Button type="submit" variant="gold" size="lg" className="w-full group">
-                    <Send className="w-4 h-4 mr-2" />
-                    Send Message
+                  <Button 
+                    type="submit" 
+                    variant="gold" 
+                    size="lg" 
+                    className="w-full" 
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Sending...
+                      </>
+                    ) : (
+                      <>
+                        <Send className="w-4 h-4 mr-2" />
+                        Send Message
+                      </>
+                    )}
                   </Button>
                 </form>
               </div>
