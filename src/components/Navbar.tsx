@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, Phone, User, LogOut, Settings } from "lucide-react";
+import { Menu, X, Phone, User, LogOut, Settings, CalendarDays } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import {
@@ -97,6 +97,12 @@ const Navbar = () => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem asChild>
+                  <Link to="/my-bookings" className="flex items-center gap-2 cursor-pointer">
+                    <CalendarDays className="w-4 h-4" />
+                    My Bookings
+                  </Link>
+                </DropdownMenuItem>
                 {isAdmin && (
                   <>
                     <DropdownMenuItem asChild>
@@ -105,9 +111,9 @@ const Navbar = () => {
                         Admin Dashboard
                       </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuSeparator />
                   </>
                 )}
+                <DropdownMenuSeparator />
                 <DropdownMenuItem 
                   onClick={() => signOut()} 
                   className="flex items-center gap-2 cursor-pointer text-destructive"
