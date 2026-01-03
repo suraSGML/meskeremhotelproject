@@ -14,6 +14,72 @@ export type Database = {
   }
   public: {
     Tables: {
+      airport_transfers: {
+        Row: {
+          created_at: string | null
+          dropoff_location: string
+          flight_number: string | null
+          guest_email: string
+          guest_name: string
+          guest_phone: string | null
+          id: string
+          luggage_count: number | null
+          passengers: number
+          payment_method: string | null
+          payment_status: string | null
+          pickup_datetime: string
+          pickup_location: string
+          special_requests: string | null
+          status: string
+          total_amount: number | null
+          transfer_type: string
+          updated_at: string | null
+          vehicle_type: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          dropoff_location: string
+          flight_number?: string | null
+          guest_email: string
+          guest_name: string
+          guest_phone?: string | null
+          id?: string
+          luggage_count?: number | null
+          passengers?: number
+          payment_method?: string | null
+          payment_status?: string | null
+          pickup_datetime: string
+          pickup_location: string
+          special_requests?: string | null
+          status?: string
+          total_amount?: number | null
+          transfer_type: string
+          updated_at?: string | null
+          vehicle_type?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          dropoff_location?: string
+          flight_number?: string | null
+          guest_email?: string
+          guest_name?: string
+          guest_phone?: string | null
+          id?: string
+          luggage_count?: number | null
+          passengers?: number
+          payment_method?: string | null
+          payment_status?: string | null
+          pickup_datetime?: string
+          pickup_location?: string
+          special_requests?: string | null
+          status?: string
+          total_amount?: number | null
+          transfer_type?: string
+          updated_at?: string | null
+          vehicle_type?: string | null
+        }
+        Relationships: []
+      }
       contact_inquiries: {
         Row: {
           created_at: string | null
@@ -330,6 +396,51 @@ export type Database = {
           },
         ]
       }
+      payments: {
+        Row: {
+          amount: number
+          booking_id: string
+          booking_type: string
+          created_at: string | null
+          currency: string | null
+          id: string
+          payer_account: string | null
+          payer_phone: string | null
+          payment_method: string
+          payment_status: string | null
+          transaction_ref: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          amount: number
+          booking_id: string
+          booking_type: string
+          created_at?: string | null
+          currency?: string | null
+          id?: string
+          payer_account?: string | null
+          payer_phone?: string | null
+          payment_method: string
+          payment_status?: string | null
+          transaction_ref?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          amount?: number
+          booking_id?: string
+          booking_type?: string
+          created_at?: string | null
+          currency?: string | null
+          id?: string
+          payer_account?: string | null
+          payer_phone?: string | null
+          payment_method?: string
+          payment_status?: string | null
+          transaction_ref?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -413,6 +524,51 @@ export type Database = {
           },
         ]
       }
+      room_service_orders: {
+        Row: {
+          created_at: string | null
+          guest_email: string
+          guest_name: string
+          id: string
+          items: Json
+          payment_method: string | null
+          payment_status: string | null
+          room_number: string
+          special_instructions: string | null
+          status: string
+          total_amount: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          guest_email: string
+          guest_name: string
+          id?: string
+          items?: Json
+          payment_method?: string | null
+          payment_status?: string | null
+          room_number: string
+          special_instructions?: string | null
+          status?: string
+          total_amount?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          guest_email?: string
+          guest_name?: string
+          id?: string
+          items?: Json
+          payment_method?: string | null
+          payment_status?: string | null
+          room_number?: string
+          special_instructions?: string | null
+          status?: string
+          total_amount?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       rooms: {
         Row: {
           amenities: string[] | null
@@ -488,6 +644,101 @@ export type Database = {
         }
         Relationships: []
       }
+      spa_bookings: {
+        Row: {
+          booking_date: string
+          booking_time: string
+          created_at: string | null
+          guest_email: string
+          guest_name: string
+          guest_phone: string | null
+          id: string
+          payment_method: string | null
+          payment_status: string | null
+          spa_service_id: string | null
+          special_requests: string | null
+          status: string
+          total_amount: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          booking_date: string
+          booking_time: string
+          created_at?: string | null
+          guest_email: string
+          guest_name: string
+          guest_phone?: string | null
+          id?: string
+          payment_method?: string | null
+          payment_status?: string | null
+          spa_service_id?: string | null
+          special_requests?: string | null
+          status?: string
+          total_amount?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          booking_date?: string
+          booking_time?: string
+          created_at?: string | null
+          guest_email?: string
+          guest_name?: string
+          guest_phone?: string | null
+          id?: string
+          payment_method?: string | null
+          payment_status?: string | null
+          spa_service_id?: string | null
+          special_requests?: string | null
+          status?: string
+          total_amount?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "spa_bookings_spa_service_id_fkey"
+            columns: ["spa_service_id"]
+            isOneToOne: false
+            referencedRelation: "spa_services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      spa_services: {
+        Row: {
+          category: string | null
+          created_at: string | null
+          description: string | null
+          duration_minutes: number
+          id: string
+          image_url: string | null
+          is_active: boolean | null
+          name: string
+          price: number
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          duration_minutes?: number
+          id?: string
+          image_url?: string | null
+          is_active?: boolean | null
+          name: string
+          price: number
+        }
+        Update: {
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          duration_minutes?: number
+          id?: string
+          image_url?: string | null
+          is_active?: boolean | null
+          name?: string
+          price?: number
+        }
+        Relationships: []
+      }
       special_offers: {
         Row: {
           created_at: string | null
@@ -533,6 +784,57 @@ export type Database = {
           updated_at?: string | null
           valid_from?: string | null
           valid_until?: string | null
+        }
+        Relationships: []
+      }
+      table_bookings: {
+        Row: {
+          booking_date: string
+          booking_time: string
+          created_at: string | null
+          guest_email: string
+          guest_name: string
+          guest_phone: string | null
+          id: string
+          party_size: number
+          payment_method: string | null
+          payment_status: string | null
+          special_requests: string | null
+          status: string
+          total_amount: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          booking_date: string
+          booking_time: string
+          created_at?: string | null
+          guest_email: string
+          guest_name: string
+          guest_phone?: string | null
+          id?: string
+          party_size?: number
+          payment_method?: string | null
+          payment_status?: string | null
+          special_requests?: string | null
+          status?: string
+          total_amount?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          booking_date?: string
+          booking_time?: string
+          created_at?: string | null
+          guest_email?: string
+          guest_name?: string
+          guest_phone?: string | null
+          id?: string
+          party_size?: number
+          payment_method?: string | null
+          payment_status?: string | null
+          special_requests?: string | null
+          status?: string
+          total_amount?: number | null
+          updated_at?: string | null
         }
         Relationships: []
       }

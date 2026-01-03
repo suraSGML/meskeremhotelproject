@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, Phone, User, LogOut, Settings, CalendarDays } from "lucide-react";
+import { Menu, X, Phone, User, LogOut, Settings, CalendarDays, ChevronDown, Utensils, Sparkles, Plane, UtensilsCrossed } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import {
@@ -10,6 +10,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+} from "@/components/ui/navigation-menu";
+import { cn } from "@/lib/utils";
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -26,12 +35,19 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const navLinks = [
-    { name: "Events & Weddings", href: "/events" },
+  const mainNavLinks = [
     { name: "Accommodations", href: "/accommodations" },
     { name: "Dining", href: "/dining" },
+    { name: "Events", href: "/events" },
     { name: "Experiences", href: "/experiences" },
     { name: "About", href: "/about" },
+  ];
+
+  const serviceLinks = [
+    { name: "Reserve a Table", href: "/table-booking", icon: Utensils, description: "Book a table at our restaurant" },
+    { name: "Room Service", href: "/room-service", icon: UtensilsCrossed, description: "Order food to your room" },
+    { name: "Spa & Wellness", href: "/spa", icon: Sparkles, description: "Relaxing spa treatments" },
+    { name: "Airport Transfer", href: "/airport-transfer", icon: Plane, description: "Pickup & drop-off service" },
   ];
 
   const showTransparent = isHome && !isScrolled;
@@ -63,8 +79,56 @@ const Navbar = () => {
           </div>
         </Link>
 
-        <div className="hidden lg:flex items-center gap-8">
-          {navLinks.map((link) => (
+        <div className="hidden lg:flex items-center gap-6">
+          {mainNavLinks.slice(0, 2).map((link) => (
+            <Link
+              key={link.name}
+              to={link.href}
+              className={`text-sm font-medium tracking-wide transition-all duration-300 hover:text-gold relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[1px] after:bg-gold after:transition-all after:duration-300 hover:after:w-full ${
+                showTransparent ? "text-cream" : "text-foreground"
+              } ${location.pathname === link.href ? "text-gold after:w-full" : ""}`}
+            >
+              {link.name}
+            </Link>
+          ))}
+
+          {/* Services Dropdown */}
+          <NavigationMenu>
+            <NavigationMenuList>
+              <NavigationMenuItem>
+                <NavigationMenuTrigger className={cn(
+                  "bg-transparent text-sm font-medium tracking-wide transition-all duration-300 hover:text-gold hover:bg-transparent focus:bg-transparent data-[state=open]:bg-transparent",
+                  showTransparent ? "text-cream" : "text-foreground"
+                )}>
+                  Services
+                </NavigationMenuTrigger>
+                <NavigationMenuContent>
+                  <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2">
+                    {serviceLinks.map((service) => (
+                      <li key={service.name}>
+                        <NavigationMenuLink asChild>
+                          <Link
+                            to={service.href}
+                            className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                          >
+                            <div className="flex items-center gap-2">
+                              <service.icon className="w-4 h-4 text-secondary" />
+                              <div className="text-sm font-medium leading-none">{service.name}</div>
+                            </div>
+                            <p className="line-clamp-2 text-sm leading-snug text-muted-foreground mt-1">
+                              {service.description}
+                            </p>
+                          </Link>
+                        </NavigationMenuLink>
+                      </li>
+                    ))}
+                  </ul>
+                </NavigationMenuContent>
+              </NavigationMenuItem>
+            </NavigationMenuList>
+          </NavigationMenu>
+
+          {mainNavLinks.slice(2).map((link) => (
             <Link
               key={link.name}
               to={link.href}
@@ -144,29 +208,53 @@ const Navbar = () => {
       </nav>
 
       <div
-        className={`lg:hidden fixed inset-0 top-[72px] bg-background/98 backdrop-blur-lg transition-all duration-500 ${
+        className={`lg:hidden fixed inset-0 top-[72px] bg-background/98 backdrop-blur-lg transition-all duration-500 overflow-y-auto ${
           isMobileMenuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
         }`}
       >
         <div className="container mx-auto px-6 py-8 flex flex-col gap-6">
-          {navLinks.map((link, index) => (
+          {mainNavLinks.map((link, index) => (
             <Link
               key={link.name}
               to={link.href}
               onClick={() => setIsMobileMenuOpen(false)}
               className="text-xl font-display text-foreground hover:text-gold transition-colors animate-fade-up"
-              style={{ animationDelay: `${index * 100}ms` }}
+              style={{ animationDelay: `${index * 50}ms` }}
             >
               {link.name}
             </Link>
           ))}
-          <div className="pt-6 border-t border-border flex flex-col gap-4">
+          
+          <div className="border-t border-border pt-4">
+            <p className="text-sm font-semibold text-muted-foreground mb-4">Services</p>
+            <div className="grid grid-cols-2 gap-3">
+              {serviceLinks.map((service) => (
+                <Link
+                  key={service.name}
+                  to={service.href}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="flex items-center gap-2 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
+                >
+                  <service.icon className="w-5 h-5 text-secondary" />
+                  <span className="text-sm font-medium">{service.name}</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+          
+          <div className="pt-4 border-t border-border flex flex-col gap-4">
             <a href="tel:+251912345678" className="flex items-center gap-2 text-muted-foreground">
               <Phone className="w-5 h-5" />
               <span>+251 912 345 678</span>
             </a>
             {!isLoading && user ? (
               <>
+                <Link to="/my-bookings" onClick={() => setIsMobileMenuOpen(false)}>
+                  <Button variant="outline" size="lg" className="w-full gap-2">
+                    <CalendarDays className="w-4 h-4" />
+                    My Bookings
+                  </Button>
+                </Link>
                 {isAdmin && (
                   <Link to="/admin" onClick={() => setIsMobileMenuOpen(false)}>
                     <Button variant="outline" size="lg" className="w-full gap-2">
