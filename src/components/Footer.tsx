@@ -12,11 +12,18 @@ const Footer = () => {
     { name: "Contact", href: "/contact" },
   ];
 
+  const serviceLinks = [
+    { name: "Reserve a Table", href: "/table-booking" },
+    { name: "Room Service", href: "/room-service" },
+    { name: "Spa & Wellness", href: "/spa" },
+    { name: "Airport Transfer", href: "/airport-transfer" },
+  ];
+
   return (
     <footer className="bg-primary text-primary-foreground">
       <div className="container mx-auto px-6 py-20">
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
-          <div>
+        <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-12 mb-16">
+          <div className="lg:col-span-2">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-10 h-10 rounded-full bg-gradient-gold flex items-center justify-center">
                 <span className="font-display text-lg font-bold text-espresso">M</span>
@@ -26,15 +33,33 @@ const Footer = () => {
                 <span className="text-[10px] uppercase tracking-[0.2em] -mt-1 text-primary-foreground/60">Hotel & Events</span>
               </div>
             </div>
-            <p className="text-primary-foreground/70 text-sm leading-relaxed">
+            <p className="text-primary-foreground/70 text-sm leading-relaxed mb-6">
               Where Ethiopian heritage meets modern luxury. The premier destination for unforgettable celebrations in Debre Markos.
             </p>
+            <div className="flex items-center gap-4">
+              {[Facebook, Instagram, Twitter].map((Icon, i) => (
+                <a key={i} href="#" className="w-10 h-10 rounded-full border border-primary-foreground/20 flex items-center justify-center hover:bg-gold hover:border-gold hover:text-espresso transition-all">
+                  <Icon className="w-4 h-4" />
+                </a>
+              ))}
+            </div>
           </div>
 
           <div>
-            <h3 className="font-display text-lg mb-6">Quick Links</h3>
+            <h3 className="font-display text-lg mb-6">Explore</h3>
             <div className="space-y-3">
               {navLinks.map((link) => (
+                <Link key={link.name} to={link.href} className="block text-sm text-primary-foreground/70 hover:text-gold transition-colors">
+                  {link.name}
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <h3 className="font-display text-lg mb-6">Services</h3>
+            <div className="space-y-3">
+              {serviceLinks.map((link) => (
                 <Link key={link.name} to={link.href} className="block text-sm text-primary-foreground/70 hover:text-gold transition-colors">
                   {link.name}
                 </Link>
@@ -55,7 +80,7 @@ const Footer = () => {
               </div>
               <div className="flex items-center gap-3">
                 <Mail className="w-4 h-4 text-gold flex-shrink-0" />
-                <p className="text-sm text-primary-foreground/70">reservations@meskeremhotel.com</p>
+                <p className="text-sm text-primary-foreground/70">info@meskeremhotel.com</p>
               </div>
               <div className="flex items-center gap-3">
                 <Clock className="w-4 h-4 text-gold flex-shrink-0" />
@@ -63,25 +88,16 @@ const Footer = () => {
               </div>
             </div>
           </div>
-
-          <div>
-            <h3 className="font-display text-lg mb-6">Newsletter</h3>
-            <p className="text-sm text-primary-foreground/70 mb-4">Subscribe for exclusive offers and updates.</p>
-            <Link to="/contact">
-              <Button variant="hero" size="sm" className="w-full">Get in Touch</Button>
-            </Link>
-          </div>
         </div>
 
         <div className="border-t border-primary-foreground/10 pt-8 flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-4">
-            {[Facebook, Instagram, Twitter].map((Icon, i) => (
-              <a key={i} href="#" className="w-10 h-10 rounded-full border border-primary-foreground/20 flex items-center justify-center hover:bg-gold hover:border-gold hover:text-espresso transition-all">
-                <Icon className="w-4 h-4" />
-              </a>
-            ))}
-          </div>
           <p className="text-sm text-primary-foreground/50">© {new Date().getFullYear()} Meskerem Hotel. All rights reserved.</p>
+          <div className="flex flex-wrap items-center justify-center gap-3 text-xs text-primary-foreground/50">
+            <span className="px-3 py-1 rounded-full border border-primary-foreground/20">Telebirr</span>
+            <span className="px-3 py-1 rounded-full border border-primary-foreground/20">CBE Birr</span>
+            <span className="px-3 py-1 rounded-full border border-primary-foreground/20">Amole</span>
+            <span className="px-3 py-1 rounded-full border border-primary-foreground/20">Bank Transfer</span>
+          </div>
         </div>
       </div>
     </footer>

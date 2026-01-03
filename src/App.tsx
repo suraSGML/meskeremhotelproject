@@ -15,6 +15,10 @@ import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 import MyBookings from "./pages/MyBookings";
+import TableBooking from "./pages/TableBooking";
+import RoomService from "./pages/RoomService";
+import Spa from "./pages/Spa";
+import AirportTransfer from "./pages/AirportTransfer";
 import AdminLogin from "./pages/admin/Login";
 import AdminLayout from "./layouts/AdminLayout";
 import AdminDashboard from "./pages/admin/Dashboard";
@@ -49,6 +53,10 @@ const App = () => (
             <Route path="/contact" element={<Contact />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/my-bookings" element={<MyBookings />} />
+            <Route path="/table-booking" element={<TableBooking />} />
+            <Route path="/room-service" element={<RoomService />} />
+            <Route path="/spa" element={<Spa />} />
+            <Route path="/airport-transfer" element={<AirportTransfer />} />
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin" element={<ProtectedRoute requireAdmin><AdminLayout /></ProtectedRoute>}>
               <Route index element={<AdminDashboard />} />
