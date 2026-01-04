@@ -10,7 +10,10 @@ import {
   Settings,
   LogOut,
   Percent,
-  Star
+  Star,
+  Flower2,
+  Plane,
+  ConciergeBell
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -22,6 +25,10 @@ const navItems = [
   { to: '/admin/room-bookings', icon: Calendar, label: 'Room Bookings' },
   { to: '/admin/events', icon: Calendar, label: 'Event Spaces' },
   { to: '/admin/event-bookings', icon: Calendar, label: 'Event Bookings' },
+  { to: '/admin/table-bookings', icon: UtensilsCrossed, label: 'Table Reservations' },
+  { to: '/admin/room-service', icon: ConciergeBell, label: 'Room Service' },
+  { to: '/admin/spa-bookings', icon: Flower2, label: 'Spa Bookings' },
+  { to: '/admin/airport-transfers', icon: Plane, label: 'Airport Transfers' },
   { to: '/admin/menu', icon: UtensilsCrossed, label: 'Menu' },
   { to: '/admin/experiences', icon: Sparkles, label: 'Experiences' },
   { to: '/admin/gallery', icon: Image, label: 'Gallery' },
