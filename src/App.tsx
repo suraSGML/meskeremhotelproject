@@ -26,6 +26,10 @@ import AdminRooms from "./pages/admin/Rooms";
 import AdminRoomBookings from "./pages/admin/RoomBookings";
 import AdminEventSpaces from "./pages/admin/EventSpaces";
 import AdminEventBookings from "./pages/admin/EventBookings";
+import AdminTableBookings from "./pages/admin/TableBookings";
+import AdminSpaBookings from "./pages/admin/SpaBookings";
+import AdminRoomServiceOrders from "./pages/admin/RoomServiceOrders";
+import AdminAirportTransfers from "./pages/admin/AirportTransfers";
 import AdminMenu from "./pages/admin/Menu";
 import AdminInquiries from "./pages/admin/Inquiries";
 import AdminExperiences from "./pages/admin/Experiences";
@@ -64,6 +68,10 @@ const App = () => (
               <Route path="room-bookings" element={<AdminRoomBookings />} />
               <Route path="events" element={<AdminEventSpaces />} />
               <Route path="event-bookings" element={<AdminEventBookings />} />
+              <Route path="table-bookings" element={<AdminTableBookings />} />
+              <Route path="spa-bookings" element={<AdminSpaBookings />} />
+              <Route path="room-service" element={<AdminRoomServiceOrders />} />
+              <Route path="airport-transfers" element={<AdminAirportTransfers />} />
               <Route path="menu" element={<AdminMenu />} />
               <Route path="experiences" element={<AdminExperiences />} />
               <Route path="gallery" element={<AdminGallery />} />
