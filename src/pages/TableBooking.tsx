@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -17,6 +18,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import PaymentDialog from "@/components/PaymentDialog";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -38,6 +40,8 @@ const timeSlots = [
 const RESERVATION_FEE = 200; // ETB reservation fee
 
 const TableBooking = () => {
+  const { user, isLoading: authLoading } = useAuth();
+  const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPayment, setShowPayment] = useState(false);
   const [bookingSuccess, setBookingSuccess] = useState(false);
@@ -47,13 +51,24 @@ const TableBooking = () => {
     resolver: zodResolver(formSchema),
     defaultValues: {
       guestName: "",
-      guestEmail: "",
+      guestEmail: user?.email || "",
       guestPhone: "",
       specialRequests: "",
     },
   });
 
+  useEffect(() => {
+    if (user) {
+      form.setValue("guestEmail", user.email || "");
+    }
+  }, [user, form]);
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    if (!user) {
+      toast.error("Please sign in to make a reservation");
+      navigate("/auth");
+      return;
+    }
     setPendingBooking(values);
     setShowPayment(true);
   };

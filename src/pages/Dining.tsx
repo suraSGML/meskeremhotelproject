@@ -246,9 +246,9 @@ const Dining = () => {
               )}
 
               <div className="flex gap-4 pt-4">
-                <Link to="/contact">
+                <Link to="/table-booking">
                   <Button variant="hero" size="lg" className="group">
-                    Book a Table
+                    Reserve a Table
                     <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                   </Button>
                 </Link>

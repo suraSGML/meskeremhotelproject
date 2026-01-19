@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { format, differenceInDays } from 'date-fns';
 import { Calendar, Users, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -7,6 +8,8 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
+import PaymentDialog from '@/components/PaymentDialog';
 import {
   Dialog,
   DialogContent,
@@ -37,7 +40,10 @@ interface RoomBookingDialogProps {
 
 export const RoomBookingDialog = ({ room, open, onOpenChange }: RoomBookingDialogProps) => {
   const { toast } = useToast();
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPayment, setShowPayment] = useState(false);
   const [formData, setFormData] = useState({
     guest_name: '',
     guest_email: '',
@@ -48,6 +54,16 @@ export const RoomBookingDialog = ({ room, open, onOpenChange }: RoomBookingDialo
     special_requests: '',
   });
 
+  // Pre-fill form when user is logged in
+  useEffect(() => {
+    if (user && open) {
+      setFormData(prev => ({
+        ...prev,
+        guest_email: user.email || '',
+      }));
+    }
+  }, [user, open]);
+
   const calculateTotal = () => {
     if (!room || !formData.check_in || !formData.check_out) return 0;
     const days = differenceInDays(new Date(formData.check_out), new Date(formData.check_in));
@@ -56,6 +72,18 @@ export const RoomBookingDialog = ({ room, open, onOpenChange }: RoomBookingDialo
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!user) {
+      toast({
+        title: 'Sign in required',
+        description: 'Please sign in to make a booking.',
+        variant: 'destructive',
+      });
+      onOpenChange(false);
+      navigate('/auth');
+      return;
+    }
+
     if (!room) return;
 
     const checkIn = new Date(formData.check_in);
@@ -70,6 +98,13 @@ export const RoomBookingDialog = ({ room, open, onOpenChange }: RoomBookingDialo
       return;
     }
 
+    // Show payment dialog
+    setShowPayment(true);
+  };
+
+  const handlePaymentComplete = async (paymentMethod: string, transactionRef: string) => {
+    if (!room) return;
+
     setIsSubmitting(true);
 
     try {
@@ -83,20 +118,40 @@ export const RoomBookingDialog = ({ room, open, onOpenChange }: RoomBookingDialo
         num_guests: formData.num_guests,
         special_requests: formData.special_requests || null,
         total_price: calculateTotal(),
-        status: 'pending',
+        status: 'confirmed',
       });
 
       if (error) throw error;
 
+      // Record payment
+      const bookingResult = await supabase
+        .from('room_bookings')
+        .select('id')
+        .eq('guest_email', formData.guest_email)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+
+      if (bookingResult.data) {
+        await supabase.from('payments').insert({
+          booking_id: bookingResult.data.id,
+          booking_type: 'room',
+          amount: calculateTotal(),
+          payment_method: paymentMethod,
+          payment_status: paymentMethod === 'cash' ? 'pending' : 'completed',
+          transaction_ref: transactionRef,
+        });
+      }
+
       toast({
-        title: 'Booking Submitted!',
-        description: 'We will confirm your reservation shortly via email.',
+        title: 'Booking Confirmed!',
+        description: 'Your room has been reserved. Check My Bookings for details.',
       });
 
       onOpenChange(false);
       setFormData({
         guest_name: '',
-        guest_email: '',
+        guest_email: user?.email || '',
         guest_phone: '',
         check_in: '',
         check_out: '',
@@ -116,6 +171,7 @@ export const RoomBookingDialog = ({ room, open, onOpenChange }: RoomBookingDialo
   };
 
   const today = format(new Date(), 'yyyy-MM-dd');
+  const totalAmount = calculateTotal();
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -225,14 +281,14 @@ export const RoomBookingDialog = ({ room, open, onOpenChange }: RoomBookingDialo
             />
           </div>
 
-          {calculateTotal() > 0 && (
+          {totalAmount > 0 && (
             <div className="bg-muted p-4 rounded-lg">
               <div className="flex justify-between items-center">
                 <span className="text-muted-foreground">
-                  {differenceInDays(new Date(formData.check_out), new Date(formData.check_in))} nights × ${room?.price_per_night}
+                  {differenceInDays(new Date(formData.check_out), new Date(formData.check_in))} nights × ETB {room?.price_per_night?.toLocaleString()}
                 </span>
                 <span className="font-display text-2xl text-foreground">
-                  ${calculateTotal()}
+                  ETB {totalAmount.toLocaleString()}
                 </span>
               </div>
             </div>
@@ -242,12 +298,20 @@ export const RoomBookingDialog = ({ room, open, onOpenChange }: RoomBookingDialo
             {isSubmitting ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                Submitting...
+                Processing...
               </>
-            ) : 'Confirm Booking'}
+            ) : user ? 'Continue to Payment' : 'Sign In to Book'}
           </Button>
         </form>
       </DialogContent>
+
+      <PaymentDialog
+        open={showPayment}
+        onOpenChange={setShowPayment}
+        amount={totalAmount}
+        bookingType="room booking"
+        onPaymentComplete={handlePaymentComplete}
+      />
     </Dialog>
   );
 };
