@@ -73,9 +73,21 @@ const Auth = () => {
       return;
     }
 
+    // Auto sign-in after successful registration
+    const { error: signInError } = await signIn(email, password);
+    
+    if (signInError) {
+      toast({
+        title: 'Account created!',
+        description: 'Please sign in with your new credentials.',
+      });
+      setIsLoading(false);
+      return;
+    }
+
     toast({
-      title: 'Account created!',
-      description: 'Welcome to Meskerem Hotel.',
+      title: 'Welcome to Meskerem Hotel!',
+      description: 'Your account has been created and you are now signed in.',
     });
     
     navigate('/');
