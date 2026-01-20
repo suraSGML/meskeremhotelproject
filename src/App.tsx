@@ -33,6 +33,7 @@ import AdminAirportTransfers from "./pages/admin/AirportTransfers";
 import AdminMenu from "./pages/admin/Menu";
 import AdminInquiries from "./pages/admin/Inquiries";
 import AdminExperiences from "./pages/admin/Experiences";
+import AdminExperienceBookings from "./pages/admin/ExperienceBookings";
 import AdminGallery from "./pages/admin/Gallery";
 import AdminSpecialOffers from "./pages/admin/SpecialOffers";
 import AdminTestimonials from "./pages/admin/Testimonials";
@@ -74,6 +75,7 @@ const App = () => (
               <Route path="airport-transfers" element={<AdminAirportTransfers />} />
               <Route path="menu" element={<AdminMenu />} />
               <Route path="experiences" element={<AdminExperiences />} />
+              <Route path="experience-bookings" element={<AdminExperienceBookings />} />
               <Route path="gallery" element={<AdminGallery />} />
               <Route path="offers" element={<AdminSpecialOffers />} />
               <Route path="testimonials" element={<AdminTestimonials />} />
