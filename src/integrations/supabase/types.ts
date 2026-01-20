@@ -232,6 +232,68 @@ export type Database = {
         }
         Relationships: []
       }
+      experience_bookings: {
+        Row: {
+          booking_date: string
+          booking_time: string
+          created_at: string | null
+          experience_id: string | null
+          guest_email: string
+          guest_name: string
+          guest_phone: string | null
+          id: string
+          num_participants: number
+          payment_method: string | null
+          payment_status: string | null
+          special_requests: string | null
+          status: string
+          total_amount: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          booking_date: string
+          booking_time: string
+          created_at?: string | null
+          experience_id?: string | null
+          guest_email: string
+          guest_name: string
+          guest_phone?: string | null
+          id?: string
+          num_participants?: number
+          payment_method?: string | null
+          payment_status?: string | null
+          special_requests?: string | null
+          status?: string
+          total_amount?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          booking_date?: string
+          booking_time?: string
+          created_at?: string | null
+          experience_id?: string | null
+          guest_email?: string
+          guest_name?: string
+          guest_phone?: string | null
+          id?: string
+          num_participants?: number
+          payment_method?: string | null
+          payment_status?: string | null
+          special_requests?: string | null
+          status?: string
+          total_amount?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "experience_bookings_experience_id_fkey"
+            columns: ["experience_id"]
+            isOneToOne: false
+            referencedRelation: "experiences"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       experiences: {
         Row: {
           category: string | null
